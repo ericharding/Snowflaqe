@@ -194,7 +194,11 @@ let runConfig (config: Config) =
         printfn "✔️  Schema loaded successfully"
         colorprintfn "⏳ Validating queries within $green[%s]" config.queries
         let mutable errorCount = 0
-        let queryFiles = Directory.GetFiles(config.queries, "*.gql") |> Seq.map Path.GetFullPath
+        let queryFiles = 
+          if File.Exists config.queries then
+            seq { Path.GetFullPath config.queries }
+          else
+            Directory.GetFiles(config.queries, "*.gql") |> Seq.map Path.GetFullPath
         for queryFile in queryFiles do
             let query = File.ReadAllText queryFile
             match Query.parse query with
